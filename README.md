@@ -5,6 +5,9 @@ This program shows a compact implementation of the MCMC-MH algorithm.
 
 1. INSTALLATION
 ---------------
+
+We use OpenCV for visualizations to it is required to build the project.
+
 Run these commands from the root directory of the project:
 $ mkdir build
 $ cd build

@@ -19,9 +19,9 @@ std::map<int, int> estimtated_distribution;
 
 // Mixture of two Gaussians - this will be our "hard-to-sample-from" target distribution.
 float target_distribution(float x) {
-  float sigma2 = 1;
-  float mean2 = -10;
-  float sigma1 = 1;
+  float sigma2 = 3;
+  float mean2 = -15;
+  float sigma1 = 5;
   float mean1 = -5;
   float pi = M_PI;
   return 0.5f/std::sqrt(2*pi)*std::pow(M_E,-0.5* ((x-mean1)/sigma1) * ((x-mean1)/sigma1) ) +
@@ -30,16 +30,16 @@ float target_distribution(float x) {
 
 // Here we plot the current estimation of the target distribution
 void plot_estimtated_distribution(int it) {
+  double scaling = 200;
   std::cout << std::endl << "Estimated distribution - It. #" << it << std::endl;
   for (auto x : estimtated_distribution) {
     // Print the normalized estimated distribution
-    std::cout << x.first << "\t" << std::string(std::round(x.second*100/sample_count),'*') << std::endl;
+    std::cout << x.first << "\t" << std::string(std::round(x.second*scaling/sample_count),'*') << std::endl;
   }
 }
 
 int main(int argc, const char * argv[]) {
-  std::cout << "MCMC" << std::endl;
-  
+
   // Setting up random number generator
   std::mt19937 generator(std::random_device{}());
   std::uniform_real_distribution<float> uniform_density(0,1);
@@ -64,7 +64,7 @@ int main(int argc, const char * argv[]) {
     }
     ++estimtated_distribution[std::round(new_state)];
     
-    // Only print a few in between estimations
+    // Only print a few in-between estimations
     if (it%(max_iterations/10)==0) plot_estimtated_distribution(it);
     current_state = new_state;
     sample_count++;
