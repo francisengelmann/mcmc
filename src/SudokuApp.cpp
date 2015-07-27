@@ -59,10 +59,9 @@ int cost() {
       // In each 3x3-block current cell must be unique
       int m = x/3;
       int n = y/3;
-      std::cout << m << " " << n << std::endl;
       for (int l=0; l<3; l++) {
-        for (int l=0; l<3; l++) {
-
+        for (int k=0; k<3; k++) {
+          if (current_cell == field[3*n+l][3*m+k] && y!=3*n+l && x!=3*m+k) cost++;
         }
       }
     }
@@ -101,6 +100,99 @@ void init_field () {
   }
 }
 
+void init_solved_field () {
+  // Setting up random number generator
+  field[0][0] = 8;
+  field[0][1] = 2;
+  field[0][2] = 7;
+  field[0][3] = 1;
+  field[0][4] = 5;
+  field[0][5] = 4;
+  field[0][6] = 3;
+  field[0][7] = 9;
+  field[0][8] = 6;
+
+  field[1][0] = 9;
+  field[1][1] = 6;
+  field[1][2] = 5;
+  field[1][3] = 3;
+  field[1][4] = 2;
+  field[1][5] = 7;
+  field[1][6] = 1;
+  field[1][7] = 4;
+  field[1][8] = 8;
+
+  field[2][0] = 3;
+  field[2][1] = 4;
+  field[2][2] = 1;
+  field[2][3] = 6;
+  field[2][4] = 8;
+  field[2][5] = 9;
+  field[2][6] = 7;
+  field[2][7] = 5;
+  field[2][8] = 2;
+
+  field[3][0] = 5;
+  field[3][1] = 9;
+  field[3][2] = 3;
+  field[3][3] = 4;
+  field[3][4] = 6;
+  field[3][5] = 8;
+  field[3][6] = 2;
+  field[3][7] = 7;
+  field[3][8] = 1;
+
+  field[4][0] = 4;
+  field[4][1] = 7;
+  field[4][2] = 2;
+  field[4][3] = 5;
+  field[4][4] = 1;
+  field[4][5] = 3;
+  field[4][6] = 6;
+  field[4][7] = 8;
+  field[4][8] = 9;
+
+  field[5][0] = 6;
+  field[5][1] = 1;
+  field[5][2] = 8;
+  field[5][3] = 9;
+  field[5][4] = 7;
+  field[5][5] = 2;
+  field[5][6] = 4;
+  field[5][7] = 3;
+  field[5][8] = 5;
+
+  field[6][0] = 7;
+  field[6][1] = 8;
+  field[6][2] = 6;
+  field[6][3] = 2;
+  field[6][4] = 3;
+  field[6][5] = 5;
+  field[6][6] = 9;
+  field[6][7] = 1;
+  field[6][8] = 4;
+
+  field[7][0] = 1;
+  field[7][1] = 5;
+  field[7][2] = 4;
+  field[7][3] = 7;
+  field[7][4] = 9;
+  field[7][5] = 6;
+  field[7][6] = 8;
+  field[7][7] = 2;
+  field[7][8] = 3;
+
+  field[8][0] = 2;
+  field[8][1] = 3;
+  field[8][2] = 9;
+  field[8][3] = 8;
+  field[8][4] = 4;
+  field[8][5] = 1;
+  field[8][6] = 5;
+  field[8][7] = 6;
+  field[8][8] = 7;
+}
+
 int main(int argc, const char * argv[]) {
 
   // Setting up random number generator
@@ -108,6 +200,7 @@ int main(int argc, const char * argv[]) {
   std::uniform_real_distribution<float> uniform_density(0,1);
 
   init_field();
+  init_solved_field();
   std::cout << "Cost: " << cost() << std::endl;
   show_state();
 

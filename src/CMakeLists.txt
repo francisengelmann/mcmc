@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 find_package(OpenCV REQUIRED)
 
-# Wall : print all warninga
+# Wall : print all warnings
 # std=c++0x : use c++11
 add_definitions(-Wall -std=c++0x)
 
