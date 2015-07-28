@@ -23,6 +23,8 @@ unsigned int sample_count = 1;
 std::map<int, int> estimtated_distribution;
 
 int current_state[9][9];
+int current_cost[9][9];
+
 int tentative_new_state[9][9];
 int new_state[9][9];
 
@@ -69,6 +71,30 @@ double cost(int state[9][9]) {
     }
   }
   return 2000-cost;
+}
+
+double cost(int state[9][9], int cost[9][9]) {
+  int all_cost = 0;
+
+  // Iterate over each cell in the field
+  for (int y=0; y<9; y++) {
+    for (int x=0; x<9; x++) {
+      int current_cell = state[y][x];
+      // In each row current cell must be unique
+      for (int l=0; l<9; l++) if (current_cell == state[y][l] && x!=l) cost[y][x]++;
+      // In each column current cell must be unique
+      for (int l=0; l<9; l++) if (current_cell == state[l][x] && y!=l) cost[y][x]++;
+      // In each 3x3-block current cell must be unique
+      int m = x/3;
+      int n = y/3;
+      for (int l=0; l<3; l++) {
+        for (int k=0; k<3; k++) {
+          if (current_cell == state[3*n+l][3*m+k] && y!=3*n+l && x!=3*m+k) cost[y][x]++;
+        }
+      }
+    }
+  }
+  return all_cost;
 }
 
 void show_state() {
