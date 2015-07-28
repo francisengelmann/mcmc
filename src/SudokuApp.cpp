@@ -26,7 +26,10 @@ int current_state[9][9];
 int current_cost[9][9];
 
 int tentative_new_state[9][9];
+int tentative_new_cost[9][9];
+
 int new_state[9][9];
+int new_cost[9][9];
 
 // Mixture of two Gaussians - this will be our "hard-to-sample-from" target distribution.
 float target_distribution(float x) {
@@ -77,6 +80,8 @@ int compute_cost(int state[9][9], int cost[9][9]) {
   // Iterate over each cell in the field
   for (int y=0; y<9; y++) {
     for (int x=0; x<9; x++) {
+      // First set cost to zero
+      cost[y][x] = 0;
       int current_cell = state[y][x];
       // Must appear exactly once in a row
       for (int l=0; l<9; l++) if (current_cell == state[y][l] && x!=l) cost[y][x]++;
@@ -101,7 +106,7 @@ int compute_cost(int state[9][9], int cost[9][9]) {
   int all_cost = 0;
   for (int y=0; y<9; y++) {
     for (int x=0; x<9; x++) {
-        all_cost = cost[y][x];
+        all_cost += cost[y][x];
     }
   }
   return all_cost;
@@ -120,21 +125,29 @@ void show_state(int state[9][9], int cost[9][9]) {
       cv::rectangle(image, cv::Point((j*s),(i*s)), cv::Point(s,s), cv::Scalar(0,0,0), 1);
       cv::putText(image, std::to_string(state[i][j]), cv::Point((j*s)+10,(i*s)+s-11),
           cv::FONT_HERSHEY_COMPLEX_SMALL, 1.0, cv::Scalar(0,0,0), 1, CV_AA);
+      cv::Scalar color = (cost[i][j]==0)?cv::Scalar(0,50,0) : cv::Scalar(0,0,255);
       cv::putText(image, std::to_string(cost[i][j]), cv::Point((j*s)+1,(i*s)+s-4),
-          cv::FONT_HERSHEY_COMPLEX_SMALL, 0.5, cv::Scalar(0,0,255), 1, CV_AA);
+          cv::FONT_HERSHEY_COMPLEX_SMALL, 0.5, color, 1, CV_AA);
     }
   }
   cv::imshow("Field",image);
   cv::waitKey(0);
 }
 
+/**
+ * @brief init_field - fills the field with numbers at random positions and guarantees
+ *                     that each number occurs exactly 9 times.
+ * @param field - the field to be initialized
+ */
 void init_field (int field[9][9]) {
-  // Init field with 9 numbers of each number
+
+  // Init field with 9 instances of each number
   for (int j=0; j<9; j++) {
     for (int i=0; i<9; i++) {
       field[j][i] = i+1;
     }
   }
+
   // Setting up random number generator
   std::mt19937 generator(std::random_device{}());
   std::uniform_real_distribution<float> uniform_density(0,9);
@@ -150,6 +163,40 @@ void init_field (int field[9][9]) {
       field[y2][x2] = field[y1][x1];
       field[y1][x1] = tmp;
   }
+}
+
+/**
+ * @brief pick_sample
+ * @param cost
+ * @return
+ */
+std::pair<int, int> pick_sample(int cost[9][9]) {
+
+  std::mt19937 generator(std::random_device{}());
+  std::uniform_real_distribution<float> uniform_density(0,1);
+
+  unsigned int Z = 0; // Normalization factor
+  for (int y=0; y<9; y++) for (int x=0; x<9; x++) Z+=std::exp(cost[y][x]);
+
+  double F[9*9]; // Cumulative distribution function
+  int index = 0;
+  F[index] = (float)std::exp(cost[0][0]) / (float)Z;
+  for (int y=0; y<9; y++) for (int x=0; x<9; x++) {
+      std::cout << index << std::endl;
+      if (index==0) { F[index] = (float)std::exp(cost[0][0]) / (float)Z; index++; continue; }
+      F[index] = F[index-1] + (float)std::exp(cost[y][x])/(float)Z;
+      index++;
+    }
+  std::cout << "This should be one: 1=" << F[80] << std::endl;
+
+  float rnd = uniform_density(generator);
+  int sample = 0;
+  while (rnd > F[sample]) sample++;
+
+  std::pair<int, int> s;
+  s.first = sample/9;
+  s.second = sample-9*s.first;
+  return s;
 }
 
 void init_solved_field () {
@@ -260,52 +307,65 @@ int main(int argc, const char * argv[]) {
 
   // Start iterating
   for (unsigned int it=0; it<max_iterations; it++) {
-    // Sample tentative new state from propsal density
-    init_field(tentative_new_state);
-    std::cout << "Tentative Cost: " << cost(tentative_new_state) << std::endl;
+
+    // Sample tentative new state
+    for (int j=0; j<9; j++) for (int i=0; i<9; i++) tentative_new_state[j][i] = current_state[j][i];
+
+    std::pair<int, int> s1 = pick_sample(current_cost);
+    std::pair<int, int> s2 = pick_sample(current_cost);
+
+    std::cout << "s1=" << s1.first << "x" << s1.second << std::endl;
+    std::cout << "s2=" << s2.first << "x" << s2.second << std::endl;
+
+    // Select two cells
+    int x1=0, x2=0, y1=0, y2=0;
+    {
+      std::uniform_real_distribution<float> uniform_density(0,9);
+      while ( (x1==x2 && y1==y2) ) {
+        x1 = uniform_density(generator);
+        y1 = uniform_density(generator);
+        x2 = uniform_density(generator);
+        y2 = uniform_density(generator);
+      }
+    }
+    // Swap two cells
+
+    std::cout << "Digit=" << current_state[s1.first][s1.second] << " Cost=" << current_cost[s1.first][s1.second] << std::endl;
+    std::cout << "Digit=" << current_state[s2.first][s2.second] << " Cost=" << current_cost[s2.first][s2.second] << std::endl;
+
+    tentative_new_state[s1.first][s1.second] = current_state[s2.first][s2.second];
+    tentative_new_state[s2.first][s2.second] = current_state[s1.first][s1.second];
+
+    std::cout << "current_cost=" << compute_cost(current_state, current_cost) << std::endl;
+    std::cout << "tentative_cost=" << compute_cost(tentative_new_state, tentative_new_cost) << std::endl;
 
     // Compute factor a
-
-    float a = cost(tentative_new_state) / cost(current_state); // Compute acceptance rate
+    double temperature = 1.0;
+    double a = std::exp(( (double)compute_cost(current_state, current_cost) -
+                         (double)compute_cost(tentative_new_state, tentative_new_cost)
+                         ) / temperature);
     std::cout << "a=" << a << std::endl;
+
     //Decide wether to accept tentative new state
-    if(a >= 1) {
-        for (int j=0; j<9; j++) {
-          for (int i=0; i<9; i++) {
-            new_state[i][j] = tentative_new_state[i][j];
-          }
-        }
+    if (a >= 1) { // Accept new state
+        for (int j=0; j<9; j++) for (int i=0; i<9; i++) new_state[j][i] = tentative_new_state[j][i];
     } else { // Accept new state with probability a
-      if (a >= uniform_density(generator)){
-          for (int j=0; j<9; j++) {
-            for (int i=0; i<9; i++) {
-              new_state[i][j] = tentative_new_state[i][j];
-            }
-          }
-      } else {
-          for (int j=0; j<9; j++) {
-            for (int i=0; i<9; i++) {
-              new_state[i][j] = current_state[i][j];
-            }
-          }
+      if (a >= uniform_density(generator)) { // Accept new state
+          for (int j=0; j<9; j++) for (int i=0; i<9; i++) new_state[j][i] = tentative_new_state[j][i];
+      } else { // Reject new state, keep old/current
+          for (int j=0; j<9; j++) for (int i=0; i<9; i++) new_state[j][i] = current_state[j][i];
       }
     }
 
-  // Prepare for next round...
-    for (int j=0; j<9; j++) {
-      for (int i=0; i<9; i++) {
-        current_state[i][j] = new_state[i][j];
-      }
-    }
+    // Prepare for next round...
+    for (int j=0; j<9; j++) for (int i=0; i<9; i++) current_state[j][i] = new_state[j][i];
 
-    int current_cost_all = cost(current_state);
+    int current_cost_all = compute_cost(current_state, current_cost);
     if (current_cost_all > best_cost) best_cost = current_cost_all;
 
     std::cout << "Cost: " << current_cost_all << " Best=" << best_cost << std::endl;
-    show_state(current_state, current_cost);
     std::cout << "---------------------------------------------" << std::endl;
-
-
+    show_state(current_state, current_cost);
   }
 
   /*    std::normal_distribution<float> proposal_density(current_state,3); // Normal distribution at current state, mean=1
@@ -328,6 +388,7 @@ int main(int argc, const char * argv[]) {
     current_state = new_state;
     sample_count++;
   }*/
+  show_state(current_state, current_cost);
   std::cout << "DONE" << std::endl;
   return 0;
 }
