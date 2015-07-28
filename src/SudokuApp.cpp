@@ -73,7 +73,7 @@ double cost(int state[9][9]) {
   return 2000-cost;
 }
 
-double cost(int state[9][9], int cost[9][9]) {
+double compute_cost(int state[9][9], int cost[9][9]) {
   int all_cost = 0;
 
   // Iterate over each cell in the field
@@ -97,9 +97,9 @@ double cost(int state[9][9], int cost[9][9]) {
   return all_cost;
 }
 
-void show_state() {
+void show_state(int state[9][9], int cost[9][9]) {
   double m = 0; // outer margin size
-  double s = 25; // width of cell
+  double s = 35; // width of cell
   cv::Mat image(s*9+2*m,s*9+2*m,CV_32FC3,cv::Scalar(255,255,255));
   cv::rectangle(image, cv::Point(m,m), cv::Point(s*9+m,s*9+m), cv::Scalar(0,0,0), 2);
   for (int j=0; j<10; j++) {
@@ -108,9 +108,10 @@ void show_state() {
         cv::rectangle(image, cv::Point((j*s),(i*s)), cv::Point(s*3,s*3), cv::Scalar(0,0,0), 2);
       }
       cv::rectangle(image, cv::Point((j*s),(i*s)), cv::Point(s,s), cv::Scalar(0,0,0), 1);
-      cv::putText(image, std::to_string(current_state[i][j]), cv::Point((j*s)+5,(i*s)+s-6),
+      cv::putText(image, std::to_string(state[i][j]), cv::Point((j*s)+8,(i*s)+s-9),
           cv::FONT_HERSHEY_COMPLEX_SMALL, 1.0, cv::Scalar(0,0,0), 1, CV_AA);
-
+      cv::putText(image, std::to_string(cost[i][j]), cv::Point((j*s)+2,(i*s)+s-5),
+          cv::FONT_HERSHEY_COMPLEX_SMALL, 0.5, cv::Scalar(0,0,255), 1, CV_AA);
     }
   }
   cv::imshow("field",image);
@@ -232,8 +233,9 @@ int main(int argc, const char * argv[]) {
   std::uniform_real_distribution<float> uniform_density(0,1);
 
   init_field(current_state);
+  compute_cost(current_state, current_cost);
   std::cout << "Cost: " << cost(current_state) << std::endl;
-  show_state();
+  show_state(current_state, current_cost);
 
   int best_cost = 0;
 
@@ -277,11 +279,11 @@ int main(int argc, const char * argv[]) {
       }
     }
 
-    int current_cost = cost(current_state);
-    if (current_cost > best_cost) best_cost = current_cost;
+    int current_cost_all = cost(current_state);
+    if (current_cost_all > best_cost) best_cost = current_cost_all;
 
-    std::cout << "Cost: " << current_cost << " Best=" << best_cost << std::endl;
-    show_state();
+    std::cout << "Cost: " << current_cost_all << " Best=" << best_cost << std::endl;
+    show_state(current_state, current_cost);
     std::cout << "---------------------------------------------" << std::endl;
 
 
