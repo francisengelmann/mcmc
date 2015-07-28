@@ -73,25 +73,35 @@ double cost(int state[9][9]) {
   return 2000-cost;
 }
 
-double compute_cost(int state[9][9], int cost[9][9]) {
-  int all_cost = 0;
-
+int compute_cost(int state[9][9], int cost[9][9]) {
   // Iterate over each cell in the field
   for (int y=0; y<9; y++) {
     for (int x=0; x<9; x++) {
       int current_cell = state[y][x];
-      // In each row current cell must be unique
+      // Must appear exactly once in a row
       for (int l=0; l<9; l++) if (current_cell == state[y][l] && x!=l) cost[y][x]++;
-      // In each column current cell must be unique
+      // Must appear exactly once in a column
       for (int l=0; l<9; l++) if (current_cell == state[l][x] && y!=l) cost[y][x]++;
-      // In each 3x3-block current cell must be unique
-      int m = x/3;
+      // Must appear exactly once in each of the 3-by-3 subgrids
       int n = y/3;
+      int m = x/3;
       for (int l=0; l<3; l++) {
         for (int k=0; k<3; k++) {
-          if (current_cell == state[3*n+l][3*m+k] && y!=3*n+l && x!=3*m+k) cost[y][x]++;
+          //std::cout << "Grid " << n << "x" << m << " : " << x << "-" << y << std::endl;
+          //std::cout << "\t" << y << "x" << x << " - " << 3*n+l << "x" <<  3*m+k << std::endl;
+          if (current_cell == state[3*n+l][3*m+k] && !(y==3*n+l && x==3*m+k)) {
+            cost[y][x]++;
+          }
         }
       }
+    }
+  }
+
+  // Accumulate costs of all cells
+  int all_cost = 0;
+  for (int y=0; y<9; y++) {
+    for (int x=0; x<9; x++) {
+        all_cost = cost[y][x];
     }
   }
   return all_cost;
@@ -114,7 +124,7 @@ void show_state(int state[9][9], int cost[9][9]) {
           cv::FONT_HERSHEY_COMPLEX_SMALL, 0.5, cv::Scalar(0,0,255), 1, CV_AA);
     }
   }
-  cv::imshow("field",image);
+  cv::imshow("Field",image);
   cv::waitKey(0);
 }
 
@@ -126,7 +136,7 @@ void init_field (int field[9][9]) {
   // Init field with 9 numbers of each number
   for (int j=0; j<9; j++) {
     for (int i=0; i<9; i++) {
-      field[i][j] = i;
+      field[j][i] = i;
     }
   }
 
