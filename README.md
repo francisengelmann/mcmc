@@ -21,3 +21,5 @@ $ ./bin/mcmc
 -------------
 [1] D. MacKay. Information Theory, Inference, and Learning Algorithms.
     http://www.inference.eng.cam.ac.uk/mackay/itila/book.html
+[2] E. Chi, and K. Lange. Techniques for Solving Sudoku Puzzles.
+    http://arxiv.org/abs/1203.2295
