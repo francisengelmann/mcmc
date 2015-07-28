@@ -118,9 +118,9 @@ void show_state(int state[9][9], int cost[9][9]) {
         cv::rectangle(image, cv::Point((j*s),(i*s)), cv::Point(s*3,s*3), cv::Scalar(0,0,0), 2);
       }
       cv::rectangle(image, cv::Point((j*s),(i*s)), cv::Point(s,s), cv::Scalar(0,0,0), 1);
-      cv::putText(image, std::to_string(state[i][j]), cv::Point((j*s)+8,(i*s)+s-9),
+      cv::putText(image, std::to_string(state[i][j]), cv::Point((j*s)+10,(i*s)+s-11),
           cv::FONT_HERSHEY_COMPLEX_SMALL, 1.0, cv::Scalar(0,0,0), 1, CV_AA);
-      cv::putText(image, std::to_string(cost[i][j]), cv::Point((j*s)+2,(i*s)+s-5),
+      cv::putText(image, std::to_string(cost[i][j]), cv::Point((j*s)+1,(i*s)+s-4),
           cv::FONT_HERSHEY_COMPLEX_SMALL, 0.5, cv::Scalar(0,0,255), 1, CV_AA);
     }
   }
@@ -129,18 +129,27 @@ void show_state(int state[9][9], int cost[9][9]) {
 }
 
 void init_field (int field[9][9]) {
-  // Setting up random number generator
-  std::mt19937 generator(std::random_device{}());
-  std::uniform_real_distribution<float> uniform_density(1,10);
-
   // Init field with 9 numbers of each number
   for (int j=0; j<9; j++) {
     for (int i=0; i<9; i++) {
-      field[j][i] = i;
+      field[j][i] = i+1;
     }
   }
+  // Setting up random number generator
+  std::mt19937 generator(std::random_device{}());
+  std::uniform_real_distribution<float> uniform_density(0,9);
 
   // Randomly swap the numbers
+  for (int i=0; i<81; i++) {
+      int x1 = uniform_density(generator);
+      int y1 = uniform_density(generator);
+      int x2 = uniform_density(generator);
+      int y2 = uniform_density(generator);
+      //std::cout << "Swapping " << y1 << "x" << x1 << " with " << y2 << "x" << x2 << std::endl;
+      int tmp = field[y2][x2];
+      field[y2][x2] = field[y1][x1];
+      field[y1][x1] = tmp;
+  }
 }
 
 void init_solved_field () {
