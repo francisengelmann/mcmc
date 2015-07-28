@@ -52,30 +52,6 @@ void plot_estimtated_distribution(int it) {
   }
 }
 
-double cost(int state[9][9]) {
-  int cost = 0;
-
-  // Iterate over each cell in the field
-  for (int y=0; y<9; y++) {
-    for (int x=0; x<9; x++) {
-      int current_cell = state[y][x];
-      // In each row current cell must be unique
-      for (int l=0; l<9; l++) if (current_cell == state[y][l] && x!=l) cost++;
-      // In each column current cell must be unique
-      for (int l=0; l<9; l++) if (current_cell == state[l][x] && y!=l) cost++;
-      // In each 3x3-block current cell must be unique
-      int m = x/3;
-      int n = y/3;
-      for (int l=0; l<3; l++) {
-        for (int k=0; k<3; k++) {
-          if (current_cell == state[3*n+l][3*m+k] && y!=3*n+l && x!=3*m+k) cost++;
-        }
-      }
-    }
-  }
-  return 2000-cost;
-}
-
 int compute_cost(int state[9][9], int cost[9][9]) {
   // Iterate over each cell in the field
   for (int y=0; y<9; y++) {
@@ -131,7 +107,7 @@ void show_state(int state[9][9], int cost[9][9]) {
     }
   }
   cv::imshow("Field",image);
-  cv::waitKey(0);
+  cv::waitKey(1);
 }
 
 /**
@@ -142,11 +118,7 @@ void show_state(int state[9][9], int cost[9][9]) {
 void init_field (int field[9][9]) {
 
   // Init field with 9 instances of each number
-  for (int j=0; j<9; j++) {
-    for (int i=0; i<9; i++) {
-      field[j][i] = i+1;
-    }
-  }
+  for (int j=0; j<9; j++) for (int i=0; i<9; i++) field[j][i] = i+1;
 
   // Setting up random number generator
   std::mt19937 generator(std::random_device{}());
@@ -175,19 +147,18 @@ std::pair<int, int> pick_sample(int cost[9][9]) {
   std::mt19937 generator(std::random_device{}());
   std::uniform_real_distribution<float> uniform_density(0,1);
 
-  unsigned int Z = 0; // Normalization factor
-  for (int y=0; y<9; y++) for (int x=0; x<9; x++) Z+=std::exp(cost[y][x]);
-
   double F[9*9]; // Cumulative distribution function
   int index = 0;
-  F[index] = (float)std::exp(cost[0][0]) / (float)Z;
+  F[index] = std::exp(cost[0][0]);
   for (int y=0; y<9; y++) for (int x=0; x<9; x++) {
-      std::cout << index << std::endl;
-      if (index==0) { F[index] = (float)std::exp(cost[0][0]) / (float)Z; index++; continue; }
-      F[index] = F[index-1] + (float)std::exp(cost[y][x])/(float)Z;
-      index++;
-    }
-  std::cout << "This should be one: 1=" << F[80] << std::endl;
+    if (index==0) { F[index] = std::exp(cost[0][0]); index++; continue; }
+    F[index] = F[index-1] + std::exp(cost[y][x]);
+    index++;
+  }
+  // Normalize
+  unsigned int Z = 0; // Normalization factor
+  for (int y=0; y<9; y++) for (int x=0; x<9; x++) Z+=std::exp(cost[y][x]);
+  for (int i=0; i<81; i++) F[i]/=Z;
 
   float rnd = uniform_density(generator);
   int sample = 0;
@@ -300,8 +271,8 @@ int main(int argc, const char * argv[]) {
 
   init_field(current_state);
   compute_cost(current_state, current_cost);
-  std::cout << "Cost: " << cost(current_state) << std::endl;
   show_state(current_state, current_cost);
+  cv::waitKey(0);
 
   int best_cost = 0;
 
@@ -317,22 +288,7 @@ int main(int argc, const char * argv[]) {
     std::cout << "s1=" << s1.first << "x" << s1.second << std::endl;
     std::cout << "s2=" << s2.first << "x" << s2.second << std::endl;
 
-    // Select two cells
-    int x1=0, x2=0, y1=0, y2=0;
-    {
-      std::uniform_real_distribution<float> uniform_density(0,9);
-      while ( (x1==x2 && y1==y2) ) {
-        x1 = uniform_density(generator);
-        y1 = uniform_density(generator);
-        x2 = uniform_density(generator);
-        y2 = uniform_density(generator);
-      }
-    }
     // Swap two cells
-
-    std::cout << "Digit=" << current_state[s1.first][s1.second] << " Cost=" << current_cost[s1.first][s1.second] << std::endl;
-    std::cout << "Digit=" << current_state[s2.first][s2.second] << " Cost=" << current_cost[s2.first][s2.second] << std::endl;
-
     tentative_new_state[s1.first][s1.second] = current_state[s2.first][s2.second];
     tentative_new_state[s2.first][s2.second] = current_state[s1.first][s1.second];
 
@@ -366,29 +322,10 @@ int main(int argc, const char * argv[]) {
     std::cout << "Cost: " << current_cost_all << " Best=" << best_cost << std::endl;
     std::cout << "---------------------------------------------" << std::endl;
     show_state(current_state, current_cost);
+    if (current_cost_all==0) break;
   }
-
-  /*    std::normal_distribution<float> proposal_density(current_state,3); // Normal distribution at current state, mean=1
-    float new_state;
-    float tentative_new_state = proposal_density(generator); // Draw sample from proposal density
-    float a = target_distribution(tentative_new_state) / target_distribution(current_state); // Compute acceptance rate
-    if(a >= 1) {
-      new_state = tentative_new_state;
-    } else { // Accept new state with probability a
-      if (a >= uniform_density(generator)){
-        new_state = tentative_new_state;
-      } else {
-        new_state = current_state;
-      }
-    }
-    ++estimtated_distribution[std::round(new_state)];
-
-    // Only print a few in-between estimations
-    if (it%(max_iterations/10)==0) plot_estimtated_distribution(it);
-    current_state = new_state;
-    sample_count++;
-  }*/
-  show_state(current_state, current_cost);
   std::cout << "DONE" << std::endl;
+  show_state(current_state, current_cost);
+  cv::waitKey(0);
   return 0;
 }
