@@ -202,8 +202,8 @@ int main(int argc, const char * argv[]) {
     tentative_new_state[s1.first][s1.second] = current_state[s2.first][s2.second];
     tentative_new_state[s2.first][s2.second] = current_state[s1.first][s1.second];
 
-    std::cout << "current_cost=" << compute_cost(current_state, current_cost) << std::endl;
-    std::cout << "tentative_cost=" << compute_cost(tentative_new_state, tentative_new_cost) << std::endl;
+    std::cout << "Current_cost=" << compute_cost(current_state, current_cost) << std::endl;
+    std::cout << "Tentative_cost=" << compute_cost(tentative_new_state, tentative_new_cost) << std::endl;
 
     // Compute factor a.
     double temperature = 1.0;
