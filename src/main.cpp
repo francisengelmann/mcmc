@@ -11,9 +11,10 @@
 #include <map>
 
 // PARAMETERS
-unsigned int max_iterations = 1000000; // The number of iterations that the MCMC runs.
+float initial_state = 7; // Initial state of markov chain.
+unsigned int max_iterations = 1000000; // Number of MCMC iterations.
 
-// The number of samples, used for normalizing the estimated distribution.
+// Number of samples, used for normalizing the estimated distribution.
 unsigned int sample_count = 1;
 std::map<int, int> estimtated_distribution;
 
@@ -45,7 +46,7 @@ int main(int argc, const char * argv[]) {
   std::uniform_real_distribution<float> uniform_density(0,1);
 
   // Specify initial state
-  float current_state = 7;
+  float current_state = initial_state;
   
   // Start iterating
   for (int it=0; it<max_iterations; it++){
