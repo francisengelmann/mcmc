@@ -5,10 +5,10 @@ find_package(OpenCV REQUIRED)
 # std=c++0x : use c++11
 add_definitions(-Wall -std=c++0x)
 
-add_executable(mcmc main.cpp)
-target_link_libraries(mcmc ${OpenCV_LIBS})
+add_executable(simple simple.cpp)
+target_link_libraries(simple ${OpenCV_LIBS})
 
-add_executable(sudoku SudokuApp.cpp)
+add_executable(sudoku sudoku.cpp)
 target_link_libraries(sudoku ${OpenCV_LIBS})
 
-install(TARGETS mcmc sudoku RUNTIME DESTINATION bin)
+install(TARGETS simple sudoku RUNTIME DESTINATION bin)
