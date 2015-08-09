@@ -100,6 +100,7 @@ void show_state(int state[9][9], int cost[9][9]) {
                                           cv::Point((j*s)+m,(i*s)+m),
                                           cv::Point((j*s)+s*3+m,(i*s)+s*3+m),
                                           cv::Scalar(0,0,0), 2);
+      // Draw cell rectangles
       cv::rectangle(image,
                     cv::Point( (j*s)+m, (i*s)+m),
                     cv::Point( (j*s)+m+s, (i*s)+m+s),
