@@ -31,6 +31,8 @@ int tentative_new_cost[9][9];
 int new_state[9][9];
 int new_cost[9][9];
 
+unsigned int it=0;
+
 /**
  * @brief compute_cost - Computes the global cost of the field and the cost of each cell.
  * @param state - State for which to compute the cost.
@@ -80,7 +82,7 @@ void show_state(int state[9][9], int cost[9][9]) {
   // Visualization parameters of the field.
   double s = 35; // Width of cell.
   unsigned int cells_per_row = 9;
-  unsigned int margin_bottom = 0;
+  unsigned int margin_bottom = 50;
   unsigned int m = 10;
   cv::Scalar color_correct = cv::Scalar(0,50,0); // Color of text for cell with cost=0.
   cv::Scalar color_not_correct = cv::Scalar(0,0,255); // Color of text for cell with cost>0.
@@ -116,6 +118,12 @@ void show_state(int state[9][9], int cost[9][9]) {
           cv::FONT_HERSHEY_SCRIPT_COMPLEX, 0.4, color, 1, CV_AA);
     }
   }
+
+  // Additional information below field:
+  cv::putText(image, "Iteration: "+std::to_string(it), cv::Point(m, cells_per_row*s+m*2+12),
+      cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(0,0,0), 1, CV_AA);
+  cv::putText(image, "Conflicts: "+std::to_string(compute_cost(state,cost)), cv::Point(m, cells_per_row*s+m*2+12+20),
+      cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(0,0,0), 1, CV_AA);
 
   // Display the current field for specified time
   cv::imshow("Field",image);
@@ -199,7 +207,7 @@ int main(int argc, const char * argv[]) {
   cv::waitKey(0);
 
   // Start iterating.
-  for (unsigned int it=0; it<max_iterations; it++) {
+  for (; it<max_iterations; it++) {
 
     // Sample tentative new state
     for (int j=0; j<9; j++) for (int i=0; i<9; i++) tentative_new_state[j][i] = current_state[j][i];
