@@ -79,29 +79,40 @@ void show_state(int state[9][9], int cost[9][9]) {
 
   // Visualization parameters of the field.
   double s = 35; // Width of cell.
+  unsigned int cells_per_row = 9;
+  unsigned int margin_bottom = 0;
+  unsigned int m = 10;
   cv::Scalar color_correct = cv::Scalar(0,50,0); // Color of text for cell with cost=0.
   cv::Scalar color_not_correct = cv::Scalar(0,0,255); // Color of text for cell with cost>0.
 
   // Init image
-  cv::Mat image(s*9+2,s*9+2,CV_32FC3,cv::Scalar(255,255,255));
-  cv::rectangle(image, cv::Point(0,0), cv::Point(s*9,s*9), cv::Scalar(0,0,0), 2);
+  cv::Mat image(s*cells_per_row + m*2 + margin_bottom, // Height of image
+                s*cells_per_row + m*2, // Width of image
+                CV_32FC3, cv::Scalar(255,255,255));
+  cv::rectangle(image, cv::Point(m,m), cv::Point(s*cells_per_row+m,s*cells_per_row+m), color_not_correct, 2);
 
   // Iterate over each cell
-  for (int j=0; j<10; j++) {
-    for (int i=0; i<10; i++) {
+  for (int j=0; j<9; j++) {
+    for (int i=0; i<9; i++) {
 
       // Draw 3x3-subgrid
-      if (i%3==0 && j%3==0) cv::rectangle(image, cv::Point((j*s),(i*s)), cv::Point(s*3,s*3), cv::Scalar(0,0,0), 2);
-      cv::rectangle(image, cv::Point((j*s),(i*s)), cv::Point(s,s), cv::Scalar(0,0,0), 1);
+      if (i%3==0 && j%3==0) cv::rectangle(image,
+                                          cv::Point((j*s)+m,(i*s)+m),
+                                          cv::Point((j*s)+s*3+m,(i*s)+s*3+m),
+                                          cv::Scalar(0,0,0), 2);
+      cv::rectangle(image,
+                    cv::Point( (j*s)+m, (i*s)+m),
+                    cv::Point( (j*s)+m+s, (i*s)+m+s),
+                    cv::Scalar(0,0,0), 1);
 
       // Draw text of cells current label
-      cv::putText(image, std::to_string(state[i][j]), cv::Point((j*s)+10,(i*s)+s-11),
-          cv::FONT_HERSHEY_COMPLEX_SMALL, 1.0, cv::Scalar(0,0,0), 1, CV_AA);
+      cv::putText(image, std::to_string(state[i][j]), cv::Point((j*s)+9+m,(i*s)+s-9+m),
+          cv::FONT_HERSHEY_SCRIPT_COMPLEX, 0.9, cv::Scalar(0,0,0), 1, CV_AA);
 
       // Draw text of cells current cost
       cv::Scalar color = (cost[i][j]==0) ? color_correct : color_not_correct;
-      cv::putText(image, std::to_string(cost[i][j]), cv::Point((j*s)+1,(i*s)+s-4),
-          cv::FONT_HERSHEY_COMPLEX_SMALL, 0.5, color, 1, CV_AA);
+      cv::putText(image, std::to_string(cost[i][j]), cv::Point((j*s)+1+m,(i*s)+s-4+m),
+          cv::FONT_HERSHEY_SCRIPT_COMPLEX, 0.4, color, 1, CV_AA);
     }
   }
 
@@ -180,7 +191,7 @@ int main(int argc, const char * argv[]) {
   std::mt19937 generator(std::random_device{}());
   std::uniform_real_distribution<float> uniform_density(0,1);
 
-  // Inti field and display it.
+  // Init field and display it.
   init_field(current_state);
   compute_cost(current_state, current_cost);
   show_state(current_state, current_cost);
