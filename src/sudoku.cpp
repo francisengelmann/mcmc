@@ -221,15 +221,9 @@ int main(int argc, const char * argv[]) {
     std::pair<int, int> s1 = pick_sample(current_cost);
     std::pair<int, int> s2 = pick_sample(current_cost);
 
-    //std::cout << "s1=" << s1.first << "x" << s1.second << std::endl;
-    //std::cout << "s2=" << s2.first << "x" << s2.second << std::endl;
-
     // Swap two cells.
     tentative_new_state[s1.first][s1.second] = current_state[s2.first][s2.second];
     tentative_new_state[s2.first][s2.second] = current_state[s1.first][s1.second];
-
-    //std::cout << "Current_cost=" << compute_cost(current_state, current_cost) << std::endl;
-    //std::cout << "Tentative_cost=" << compute_cost(tentative_new_state, tentative_new_cost) << std::endl;
 
     // Compute factor a.
     double temperature = 1.0;
@@ -253,11 +247,9 @@ int main(int argc, const char * argv[]) {
 
     // Display current overall cost.
     int current_cost_all = compute_cost(current_state, current_cost);
-    //std::cout << "Cost: " << current_cost_all << std::endl;
-    //std::cout << "---------------------------------------------" << std::endl;
     show_state(current_state, current_cost);
 
-    // If cost==0 we can stop.
+    // If total cost is zero we can stop.
     if (current_cost_all==0) break;
   }
 
