@@ -26,3 +26,10 @@
 *.exe
 *.out
 *.app
+
+# Compilations
+build-debug/
+build-release/
+
+# QtCreator
+CMakeLists.txt.user
