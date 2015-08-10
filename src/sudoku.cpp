@@ -16,8 +16,8 @@
 #include <map>
 
 // PARAMETERS
-unsigned int max_iterations = 1000000; // Number of MCMC iterations
-unsigned int display_time_ms = 5; // How long to show the field image
+unsigned int max_iterations = 100000; // Max. number of MCMC iterations
+unsigned int display_time_ms = 1; // How long to show the field image
 
 // Number of samples, used for normalizing the estimated distribution
 unsigned int sample_count = 1;
@@ -31,7 +31,9 @@ int tentative_new_cost[9][9];
 int new_state[9][9];
 int new_cost[9][9];
 
+// Global variables
 unsigned int it=0;
+std::string state_label;
 
 /**
  * @brief compute_cost - Computes the global cost of the field and the cost of each cell.
@@ -82,8 +84,8 @@ void show_state(int state[9][9], int cost[9][9]) {
   // Visualization parameters of the field.
   double s = 35; // Width of cell.
   unsigned int cells_per_row = 9;
-  unsigned int margin_bottom = 50;
-  unsigned int m = 10;
+  unsigned int margin_bottom = 60;
+  unsigned int m = 10; // Margin around field
   cv::Scalar color_correct = cv::Scalar(0,50,0); // Color of text for cell with cost=0.
   cv::Scalar color_not_correct = cv::Scalar(0,0,255); // Color of text for cell with cost>0.
 
@@ -91,7 +93,7 @@ void show_state(int state[9][9], int cost[9][9]) {
   cv::Mat image(s*cells_per_row + m*2 + margin_bottom, // Height of image
                 s*cells_per_row + m*2, // Width of image
                 CV_32FC3, cv::Scalar(255,255,255));
-  cv::rectangle(image, cv::Point(m,m), cv::Point(s*cells_per_row+m,s*cells_per_row+m), color_not_correct, 2);
+  cv::rectangle(image, cv::Point(m-1,m-1), cv::Point(s*cells_per_row+m+1,s*cells_per_row+m+1), cv::Scalar(0,0,0), 1);
 
   // Iterate over each cell
   for (int j=0; j<9; j++) {
@@ -120,9 +122,11 @@ void show_state(int state[9][9], int cost[9][9]) {
   }
 
   // Additional information below field:
-  cv::putText(image, "Iteration: "+std::to_string(it), cv::Point(m, cells_per_row*s+m*2+12),
+  cv::putText(image, state_label, cv::Point(m+90, cells_per_row*s+m*2+12),
       cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(0,0,0), 1, CV_AA);
-  cv::putText(image, "Conflicts: "+std::to_string(compute_cost(state,cost)), cv::Point(m, cells_per_row*s+m*2+12+20),
+  cv::putText(image, "Iterations: "+std::to_string(it), cv::Point(m, cells_per_row*s+m*2+12+18),
+      cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(0,0,0), 1, CV_AA);
+  cv::putText(image, "Conflicts: "+std::to_string(compute_cost(state,cost)), cv::Point(m, cells_per_row*s+m*2+12+36),
       cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(0,0,0), 1, CV_AA);
 
   // Display the current field for specified time
@@ -203,8 +207,10 @@ int main(int argc, const char * argv[]) {
   // Init field and display it.
   init_field(current_state);
   compute_cost(current_state, current_cost);
+  state_label = "Press any key to start.";
   show_state(current_state, current_cost);
   cv::waitKey(0);
+  state_label = "      Running...";
 
   // Start iterating.
   for (; it<max_iterations; it++) {
@@ -255,7 +261,8 @@ int main(int argc, const char * argv[]) {
     // If cost==0 we can stop.
     if (current_cost_all==0) break;
   }
-  std::cout << "-._.-=DONE=-._.-" << std::endl;
+
+  state_label = (compute_cost(current_state, current_cost)==0) ? "       Solved!":"Not solved... :(";
   show_state(current_state, current_cost);
   cv::waitKey(0);
   return 0;
