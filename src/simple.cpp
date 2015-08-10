@@ -49,7 +49,7 @@ int main(int argc, const char * argv[]) {
   float current_state = initial_state;
   
   // Start iterating
-  for (int it=0; it<max_iterations; it++){
+  for (unsigned int it=0; it<max_iterations; it++){
     std::normal_distribution<float> proposal_density(current_state,3); // Normal distribution at current state, mean=1
     float new_state;
     float tentative_new_state = proposal_density(generator); // Draw sample from proposal density
