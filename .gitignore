@@ -33,3 +33,6 @@ build-release/
 
 # QtCreator
 CMakeLists.txt.user
+
+# Mac files
+.DS_Store
