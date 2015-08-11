@@ -1,12 +1,13 @@
 MARCOV CHAIN MONTE CARLO - METROPOLIS HASTINGS
 ==============================================
 
-This program shows a compact implementation of the MCMC-MH algorithm.
+This program shows a compact implementation of the MCMC-MH algorithm
+for density estimation and solving a Sudoku puzzle.
 
-1. INSTALLATION
+1. COMPILATION
 ---------------
 
-We use OpenCV for visualizations so it is required to build the project.
+OpenCV is required for visualizations.
 
 Run these commands from the root directory of the project:
 $ mkdir build
@@ -14,8 +15,10 @@ $ cd build
 $ cmake ..
 $ make install
 
-To run the executable type:
+To run the executables type:
 $ ./bin/mcmc
+or
+$ ./bin/sudoku
 
 2. REFERENCES
 -------------
