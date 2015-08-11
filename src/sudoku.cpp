@@ -11,6 +11,8 @@
 
 // C/C++ includes
 #include <iostream>
+#include <fstream>
+#include <string>
 #include <cmath>
 #include <random>
 #include <map>
@@ -30,6 +32,7 @@ int tentative_new_state[9][9];
 int tentative_new_cost[9][9];
 int new_state[9][9];
 int new_cost[9][9];
+bool clues[9][9];
 
 // Global variables
 unsigned int it=0;
@@ -160,6 +163,28 @@ void init_field (int field[9][9]) {
   }
 }
 
+void read_field(int field[9][9], bool clues[9][9], std::string intput_path) {
+
+  // At first no clues are given.
+  for (int j=0; j<9; j++) for (int i=0; i<9; i++) clues[j][i] = false;
+
+  // Then read the clues.
+  std::ifstream file(intput_path);
+  std::string line;
+  int lineCount=0;
+  while (std::getline(file, line)) {
+    assert(line.size()==9);
+    for (int i=0; i<9; i++) {
+      if (line.at(i)=='-' ) continue;
+      int v = std::atoi(&line.at(i));
+      assert (v>0 && v<10);
+      field[lineCount][i]=(unsigned int)v;
+      clues[lineCount][i]=true;
+    }
+    lineCount++;
+  }
+}
+
 /**
  * @brief pick_sample - Samples a cell, prefering cells with heigth cost.
  * @param cost - Cost of the state.
@@ -206,6 +231,8 @@ int main(int argc, const char * argv[]) {
 
   // Init field and display it.
   init_field(current_state);
+  std::string path = "../../data/example.data";
+  //read_field(current_state, clues, path);
   compute_cost(current_state, current_cost);
   state_label = "Press any key to start.";
   show_state(current_state, current_cost);
