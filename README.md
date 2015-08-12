@@ -5,7 +5,7 @@ This program shows a compact implementation of the MCMC-MH algorithm
 for density estimation and solving a Sudoku puzzle.
 
 1. COMPILATION
----------------
+--------------
 
 OpenCV is required for visualizations.
 
@@ -20,7 +20,7 @@ $ ./bin/mcmc
 or
 $ ./bin/sudoku
 
-2. REFERENCES
+3. REFERENCES
 -------------
 [1] D. MacKay. Information Theory, Inference, and Learning Algorithms.
     http://www.inference.eng.cam.ac.uk/mackay/itila/book.html
