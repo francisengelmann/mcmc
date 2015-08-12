@@ -163,7 +163,13 @@ void init_field (int field[9][9]) {
   }
 }
 
-void read_field(int field[9][9], bool clues[9][9], std::string intput_path) {
+/**
+ * @brief read_field - reads given sudoku problem
+ * @param intput_path - path to the input file
+ * @param field - the field to read
+ * @param clues - the clues
+ */
+void read_field(std::string intput_path, int field[9][9], bool clues[9][9]) {
 
   // At first no clues are given.
   for (int j=0; j<9; j++) for (int i=0; i<9; i++) clues[j][i] = false;
@@ -232,7 +238,7 @@ int main(int argc, const char * argv[]) {
   // Init field and display it.
   init_field(current_state);
   std::string path = "../../data/example.data";
-  //read_field(current_state, clues, path);
+  //read_field(path, current_state, clues);
   compute_cost(current_state, current_cost);
   state_label = "Press any key to start.";
   show_state(current_state, current_cost);
