@@ -25,8 +25,8 @@ float target_distribution(float x) {
   float sigma1 = 5;
   float mean1 = -5;
   float pi = M_PI;
-  return 0.5f/std::sqrt(2*pi)*std::pow(M_E,-0.5* ((x-mean1)/sigma1) * ((x-mean1)/sigma1) ) +
-          0.5f/std::sqrt(2*pi)*std::pow(M_E,-0.5* ((x-mean2)/sigma2) * ((x-mean2)/sigma2) );
+  return 0.5f/(std::sqrt(2*pi)*sigma1)*std::pow(M_E,-0.5* ((x-mean1)/sigma1) * ((x-mean1)/sigma1) ) +
+          0.5f/(std::sqrt(2*pi)*sigma2)*std::pow(M_E,-0.5* ((x-mean2)/sigma2) * ((x-mean2)/sigma2) );
 }
 
 // Here we plot the current estimation of the target distribution
