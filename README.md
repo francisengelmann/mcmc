@@ -1,7 +1,7 @@
 ### Markov Chain Monte Carlo - Metropolis Hastings
 
 This program shows a compact implementation of the MCMC-MH algorithm
-for density estimation and solving a Sudoku puzzle.
+for probability density estimation and solving a Sudoku puzzle.
 
 #### Compilation
 
