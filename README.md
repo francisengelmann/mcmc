@@ -3,6 +3,8 @@
 This program shows a compact implementation of the MCMC-MH algorithm
 for probability density estimation and solving a Sudoku puzzle.
 
+![alt tag](data/screen.png)
+
 #### Compilation
 
 OpenCV is required for visualizations.
