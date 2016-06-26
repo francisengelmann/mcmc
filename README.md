@@ -1,18 +1,16 @@
-## Markov Chain Monte Carlo - Metropolis Hastings
+### Markov Chain Monte Carlo - Metropolis Hastings
 
 This program shows a compact implementation of the MCMC-MH algorithm
 for density estimation and solving a Sudoku puzzle.
 
-### Compilation
+#### Compilation
 
 OpenCV is required for visualizations.
 
 Run these commands from the root directory of the project:
 ```
-$ mkdir build
-$ cd build
-$ cmake ..
-$ make install
+$ mkdir build; cd build
+$ cmake ..; make install
 ```
 
 To run the executables type:
@@ -24,8 +22,8 @@ or
 $ ./bin/sudoku
 ```
 
-3. REFERENCES
--------------
+#### References
+
 [1] D. MacKay. Information Theory, Inference, and Learning Algorithms.
     http://www.inference.eng.cam.ac.uk/mackay/itila/book.html
 
