@@ -2,6 +2,7 @@
 
 This program shows a compact implementation of the MCMC-MH algorithm
 for probability density estimation and solving a Sudoku puzzle.
+You might also want to have a look at backtracking, if you are looking for a more efficient solution to Sudoku!
 
 ![alt tag](data/screen.png)
 
